@@ -1,0 +1,117 @@
+@gateway = http://localhost:8080
+@userService = http://localhost:8081
+@orderService = http://localhost:8082
+
+### [GW] Info routes
+GET {{gateway}}/
+
+### ---  USER SERVICE  ---
+
+### [GW] Tạo user Test
+POST {{gateway}}/users
+Content-Type: application/json
+
+{
+  "name": "Test",
+  "email": "test@test.com"
+}
+
+###
+
+### [GW] Tạo user Bob
+POST {{gateway}}/users
+Content-Type: application/json
+
+{
+  "name": "Bob",
+  "email": "bob@test.com"
+}
+
+###
+
+### [GW] Danh sách tất cả users
+GET {{gateway}}/users
+
+###
+
+### [GW] Lấy user theo id
+GET {{gateway}}/users/1
+
+###
+
+### [GW] Lấy user không tồn tại → 404
+GET {{gateway}}/users/999
+
+###
+
+### [GW] Xóa user
+DELETE {{gateway}}/users/2
+
+###
+
+
+### ---  ORDER SERVICE  ---
+
+### [GW] Tạo order cho user hợp lệ (user_id=1)
+POST {{gateway}}/orders
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "product": "Laptop",
+  "quantity": 1
+}
+
+###
+
+### [GW] Tạo order thứ 2
+POST {{gateway}}/orders
+Content-Type: application/json
+
+{
+  "user_id": 1,
+  "product": "Mouse",
+  "quantity": 3
+}
+
+###
+
+### [GW] Tạo order - user KHÔNG tồn tại → 400 "user not found"
+POST {{gateway}}/orders
+Content-Type: application/json
+
+{
+  "user_id": 999,
+  "product": "Keyboard",
+  "quantity": 1
+}
+
+###
+
+### [GW] Danh sách tất cả orders
+GET {{gateway}}/orders
+
+###
+
+### [GW] Lấy orders của user_id=1
+GET {{gateway}}/orders?user_id=1
+
+###
+
+### [GW] Lấy orders của user không có order nào
+GET {{gateway}}/orders?user_id=2
+
+###
+
+### [GW] Lấy order theo id
+GET {{gateway}}/orders/1
+
+###
+
+### [GW] Lấy order không tồn tại → 404
+GET {{gateway}}/orders/999
+
+###
+
+### [GW] Xóa order
+DELETE {{gateway}}/orders/1
