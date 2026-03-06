@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package peer;
+
+option go_package = "p2p_grpc/proto;proto";
+
+// --- Service ---
+service PeerService {
+  // New Peer Join to the network, returns list of known peers
+  rpc Join(JoinRequest) returns (JoinResponse);
+
+  // Notify existing peers about new peer joining
+  rpc NotifyJoin(PeerInfo) returns (AckResponse);
+
+  // Peer Leave the network, notify existing peers
+  rpc Leave(LeaveRequest) returns (AckResponse);
+
+  // Send message to all peers
+  rpc SendMessage(MessageRequest) returns (MessageResponse);
+}
+
+// --- Messages ---
+message JoinRequest {
+  string peer_id   = 1;
+  string peer_addr = 2;
+}
+
+message JoinResponse {
+  bool             success     = 1;
+  string           message     = 2;
+  repeated PeerInfo known_peers = 3; // List of known peers in the network
+}
+
+message LeaveRequest {
+  string peer_id   = 1;
+  string peer_addr = 2;
+}
+
+message MessageRequest {
+  string sender_id   = 1;
+  string sender_addr = 2;
+  string content     = 3;
+  int64  timestamp   = 4;
+}
+
+message MessageResponse {
+  bool   success = 1;
+  string message = 2;
+}
+
+message PeerInfo {
+  string peer_id   = 1;
+  string peer_addr = 2;
+}
+
+message AckResponse {
+  bool success = 1;
+}
