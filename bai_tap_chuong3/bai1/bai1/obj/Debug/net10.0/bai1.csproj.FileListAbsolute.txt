@@ -1,0 +1,15 @@
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/bin/Debug/net10.0/bai1
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/bin/Debug/net10.0/bai1.deps.json
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/bin/Debug/net10.0/bai1.runtimeconfig.json
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/bin/Debug/net10.0/bai1.dll
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/bin/Debug/net10.0/bai1.pdb
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/obj/Debug/net10.0/bai1.GeneratedMSBuildEditorConfig.editorconfig
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/obj/Debug/net10.0/bai1.AssemblyInfoInputs.cache
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/obj/Debug/net10.0/bai1.AssemblyInfo.cs
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/obj/Debug/net10.0/bai1.csproj.CoreCompileInputs.cache
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/obj/Debug/net10.0/bai1.sourcelink.json
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/obj/Debug/net10.0/bai1.dll
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/obj/Debug/net10.0/refint/bai1.dll
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/obj/Debug/net10.0/bai1.pdb
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/obj/Debug/net10.0/bai1.genruntimeconfig.cache
+/home/hoanghiep/go/src/bt_he_thong_phan_tan_2026/bai_tap_chuong3/bai1/bai1/obj/Debug/net10.0/ref/bai1.dll
