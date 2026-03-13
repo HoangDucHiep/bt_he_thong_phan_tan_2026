@@ -247,7 +247,7 @@ func main() {
 
 	banker := NewBanker(available, max)
 
-	fmt.Println("=== BANKER’S ALGORITHM (6 resources - CONCURRENT) ===")
+	fmt.Println("=== BANKER'S ALGORITHM (6 resources - CONCURRENT) ===")
 	fmt.Printf("Initial Available: %v\n\n", banker.Available)
 
 	var wg sync.WaitGroup
