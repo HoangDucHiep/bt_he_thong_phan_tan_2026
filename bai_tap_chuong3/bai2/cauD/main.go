@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+	"time"
+)
 
 type Banker struct {
 	Available  []int   // Size m:  How many instances of each resource type are currently free
@@ -92,35 +96,92 @@ func (b *Banker) Request(proc int, requests []int) bool {
 	return false
 }
 
-func NewBanker(available []int, max [][]int, allocation [][]int) *Banker {
-	/* numProcs := len(max)
-	numResType := len(max) */
-	needs := calculateNeed(max, allocation)
+func NewBanker(available []int, max [][]int) *Banker {
+	numProcs := len(max)
+	numResType := len(max)
+
+	allocation := make([][]int, numProcs)
+
+	for i := 0; i < numProcs; i++ {
+		allocation[i] = make([]int, numResType)
+	}
+
+	need := calculateNeed(max, allocation)
 
 	return &Banker{
 		Available:  available,
 		Max:        max,
 		Allocation: allocation,
-		Need:       needs,
+		Need:       need,
 	}
 }
 
-// ===== Helpers =====
+// ===== Banker's Helpers =====
 func calculateNeed(max, allocation [][]int) [][]int {
-	needs := make([][]int, len(max))
+	need := make([][]int, len(max))
 
 	for i := 0; i < len(max); i++ {
-		needs[i] = make([]int, len(max[i]))
+		need[i] = make([]int, len(max[i]))
 		for j := 0; j < len(max[i]); j++ {
-			needs[i][j] = max[i][j] - allocation[i][j]
+			need[i][j] = max[i][j] - allocation[i][j]
 		}
 	}
 
-	return needs
+	return need
+}
+
+func (b *Banker) hasRemainingNeed(proc int) bool {
+	for _, v := range b.Need[proc] {
+		if v > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// Main Helpers
+
+// no more need, done!
+func allDone(need [][]int) bool {
+	for _, r := range need {
+		for _, v := range r {
+			if v > 0 {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func randomRequest(needRow []int) []int {
+	req := make([]int, len(needRow))
+	for j := range needRow {
+		if needRow[j] > 0 {
+			maxTake := needRow[j]
+			if maxTake > 2 {
+				maxTake = 2
+			}
+			req[j] = rand.Intn(maxTake + 1)
+		}
+	}
+
+	return req
+}
+
+func allZero(req []int) bool {
+	for _, v := range req {
+		if v > 0 {
+			return false
+		}
+	}
+	return true
 }
 
 func main() {
-	available := []int{3, 3, 2}
+	const numProc = 5
+	const numRes = 3
+
+	available := []int{12, 8, 7}
 
 	max := [][]int{
 		{7, 5, 3}, // P0
@@ -130,18 +191,43 @@ func main() {
 		{4, 3, 3}, // P4
 	}
 
-	allocation := [][]int{
-		{0, 1, 0},
-		{2, 0, 0},
-		{3, 0, 2},
-		{2, 1, 1},
-		{0, 0, 2},
+	banker := NewBanker(available, max)
+
+	//fmt.Println(banker.IsSafe()) // old commit
+
+	fmt.Println("=== BANKER'S ALGORITHM DEMO - Deadlock Avoidance ===")
+	fmt.Printf("Initial Available: %v\n\n", banker.Available)
+
+	for attempt := 0; attempt < 100; attempt++ {
+		if allDone(banker.Need) {
+			fmt.Println("\n === All process finish - No DEADLOCK ===")
+		}
+
+		// choose a random process that still need res
+		p := rand.Intn(numProc)
+		if !banker.hasRemainingNeed(p) { // p dont have any need remaining
+			continue
+		}
+
+		req := randomRequest(banker.Need[p])
+		if allZero(req) {
+			continue
+		}
+
+		if banker.Request(p, req) {
+			fmt.Printf("-- GRANTED (safe state): New Available: %v\n", banker.Available)
+		} else {
+			fmt.Printf("-- DENIED (unsafe state): DEADLOCK blocked\n")
+		}
+
+		time.Sleep(300 * time.Millisecond)
 	}
 
-	banker := NewBanker(available, max, allocation)
-
-	fmt.Println(banker.IsSafe())
-
+	fmt.Println("\n===== Final State =====")
+	fmt.Printf("Available: %v\n", banker.Available)
+	for i := 0; i < numProc; i++ {
+		fmt.Printf("P%d Allocation: %v | Need: %v\n", i, banker.Allocation[i], banker.Need[i])
+	}
 }
 
 // ref: https://www.geeksforgeeks.org/operating-systems/bankers-algorithm-in-operating-system-2/
