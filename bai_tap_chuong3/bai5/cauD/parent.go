@@ -32,24 +32,23 @@ func main() {
 		go func(idx, start, end int) {
 			defer wg.Done()
 
+			// spawn ./child
+			cmd := exec.Command("./child")
+
 			// Pipe 1: Parent to Child (send range)
-			stdinR, stdinW, err := os.Pipe()
+			stdinPipe, err := cmd.StdinPipe()
 			if err != nil {
 				fmt.Printf("[parent] Error creating pipe for child %d: %v\n", idx, err)
 				return
 			}
 
 			// Pipe 2: Child to Parent (receive sum)
-			stdoutR, stdoutW, err := os.Pipe()
+			stdoutPipe, err := cmd.StdoutPipe()
 			if err != nil {
 				fmt.Printf("[parent] Error creating pipe for child %d: %v\n", idx, err)
 				return
 			}
 
-			// spawn ./child
-			cmd := exec.Command("./child")
-			cmd.Stdin = stdinR   // asign the read end of pipe 1 to child stdin
-			cmd.Stdout = stdoutW // asign the write end of pipe 2 to child stdout
 			cmd.Stderr = os.Stderr
 
 			if err := cmd.Start(); err != nil {
@@ -57,18 +56,14 @@ func main() {
 				return
 			}
 
-			// close unused ends in parent
-			stdinR.Close()
-			stdoutW.Close() // if not close, child process will block when write to stdout pipe because parent still hold the write end
-
 			fmt.Printf("[parent] Spawn child %d with PID=%d for range [%d, %d]\n", idx, cmd.Process.Pid, start, end)
 
 			// send task to the child
-			fmt.Fprintf(stdinW, "%d %d\n", start, end)
-			stdinW.Close() // close the write end to signal the child process to exit the Scan
+			fmt.Fprintf(stdinPipe, "%d %d\n", start, end)
+			stdinPipe.Close() // close the write end to signal the child process to exit the Scan
 
 			// read result from the child
-			scanner := bufio.NewScanner(stdoutR)
+			scanner := bufio.NewScanner(stdoutPipe)
 			for scanner.Scan() {
 				line := scanner.Text()
 				if strings.HasPrefix(line, "SUM:") {
@@ -77,7 +72,7 @@ func main() {
 					fmt.Printf("[parent] Received partial sum from child %d: %d\n", idx, val)
 				}
 			}
-			stdoutR.Close() // close the read end after done reading
+			stdoutPipe.Close() // close the read end after done reading
 
 			if err := cmd.Wait(); err != nil {
 				fmt.Printf("[parent] Child %d exited with error: %v\n", idx, err)
