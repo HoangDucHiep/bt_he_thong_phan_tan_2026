@@ -10,46 +10,51 @@ import (
 
 // Parent to child
 func main() {
-	fmt.Println("Parent process send data to child process")
 
-	readEnd, writeEnd, err := os.Pipe()
+	parentToChildR, parentToChildW, err := os.Pipe()
 	if err != nil {
-		fmt.Println("Error creating pipe:", err)
-		return
+		panic(err)
+	}
+	childToParentR, childToParentW, err := os.Pipe()
+	if err != nil {
+		panic(err)
 	}
 
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	// child
 	go func() {
 		defer wg.Done()
-		defer readEnd.Close()
+		defer parentToChildR.Close()
+		defer childToParentW.Close()
 
-		fmt.Println("[Child] is waiting for data from parent process...")
+		fmt.Println("[Child] is waiting for task from parent process...")
+		scanner := bufio.NewScanner(parentToChildR)
+		scanner.Scan()
+		task := scanner.Text()
+		fmt.Printf("[Child] received task: %q\n", task)
 
-		scanner := bufio.NewScanner(readEnd)
-		for scanner.Scan() {
-			fmt.Println("[Child] process received:", scanner.Text())
-		}
+		// process task
+		time.Sleep(300 * time.Millisecond)
+		result := fmt.Sprintf("Result: %s [Done]", task)
 
-		fmt.Println("[Child] parent process has closed the pipe, exiting...")
+		fmt.Fprintln(childToParentW, result)
+		fmt.Println("[Child] has sent result back to parent process, exiting...")
 	}()
 
-	messages := []string{
-		"Hello from parent process!",
-		"This is the second message from parent",
-		"Bye!!",
-	}
+	fmt.Println("[Parent] is sending task to child process...")
+	task := "Get me the data from database"
+	fmt.Fprintln(parentToChildW, task)
+	parentToChildW.Close() // Close the write end to signal the child process
 
-	for _, msg := range messages {
-		fmt.Printf("[Parent] send: %q\n", msg)
-		fmt.Fprintln(writeEnd, msg)
-		time.Sleep(200 * time.Millisecond) // Simulate some delay between messages
-	}
+	fmt.Println("[Parent] is waiting for result from child process...")
+	scanner := bufio.NewScanner(childToParentR)
+	scanner.Scan()
+	result := scanner.Text()
+	fmt.Printf("[Parent] received result: %q\n", result)
 
-	writeEnd.Close() // Close the write end to signal the child process
-	fmt.Println("[Parent] has closed the pipe, waiting for child process to finish...")
+	childToParentR.Close() // Close the read end
+	fmt.Println("[Parent] has received result, waiting for child process to finish...")
 	wg.Wait() // Wait for the child process to finish
 	fmt.Println("[Parent] child process has finished, exiting...")
 }
