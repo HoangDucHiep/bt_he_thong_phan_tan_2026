@@ -156,3 +156,8 @@ conn, err := grpc.NewClient(
 ### _g. Bổ sung phương thức Multiply, Subtract, Divide để mở rộng tính năng tính toán._
 ![Alt text](./bai1/cau1_g.png)
 
+## Bài 2:
+### a. 
+![](./bai2/cau2_a.png)
+### b. 
+![](./bai2/cau2_b.png)
