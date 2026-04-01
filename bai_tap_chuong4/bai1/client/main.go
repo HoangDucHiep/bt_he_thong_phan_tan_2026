@@ -7,14 +7,20 @@ import (
 	"time"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	_ "google.golang.org/grpc/encoding/gzip"
 )
 
 func main() {
 	useGzip := true
+
+	tlsCreds, err := credentials.NewClientTLSFromFile("certs/ca.crt", "localhost")
+	if err != nil {
+		log.Fatalf("Failed to create TLS credentials: %v", err)
+	}
+
 	dialOpts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()), // insecure credentials
+		grpc.WithTransportCredentials(tlsCreds),
 	}
 	if useGzip {
 		dialOpts = append(dialOpts, grpc.WithDefaultCallOptions(grpc.UseCompressor("gzip")))

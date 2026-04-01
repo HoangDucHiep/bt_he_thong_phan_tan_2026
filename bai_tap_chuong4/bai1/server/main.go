@@ -8,6 +8,7 @@ import (
 	"net"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	_ "google.golang.org/grpc/encoding/gzip"
 )
 
@@ -43,7 +44,12 @@ func main() {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 
-	grpcServer := grpc.NewServer()
+	creds, err := credentials.NewServerTLSFromFile("certs/server.crt", "certs/server.key")
+	if err != nil {
+		log.Fatalf("Failed to load TLS credentials: %v", err)
+	}
+
+	grpcServer := grpc.NewServer(grpc.Creds(creds))
 	pb.RegisterCalculatorServiceServer(grpcServer, &calculatorServer{})
 
 	if err := grpcServer.Serve(lis); err != nil {
