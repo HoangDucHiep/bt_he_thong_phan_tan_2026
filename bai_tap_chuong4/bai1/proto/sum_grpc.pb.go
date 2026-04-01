@@ -19,14 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CalculatorService_Add_FullMethodName = "/sum.CalculatorService/Add"
+	CalculatorService_AddStream_FullMethodName = "/sum.CalculatorService/AddStream"
 )
 
 // CalculatorServiceClient is the client API for CalculatorService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CalculatorServiceClient interface {
-	Add(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*AddResponse, error)
+	// rpc Add(AddRequest) returns (AddResponse);  // Unary RPC
+	AddStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[AddRequest, AddResponse], error)
 }
 
 type calculatorServiceClient struct {
@@ -37,21 +38,25 @@ func NewCalculatorServiceClient(cc grpc.ClientConnInterface) CalculatorServiceCl
 	return &calculatorServiceClient{cc}
 }
 
-func (c *calculatorServiceClient) Add(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*AddResponse, error) {
+func (c *calculatorServiceClient) AddStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[AddRequest, AddResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AddResponse)
-	err := c.cc.Invoke(ctx, CalculatorService_Add_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &CalculatorService_ServiceDesc.Streams[0], CalculatorService_AddStream_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[AddRequest, AddResponse]{ClientStream: stream}
+	return x, nil
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CalculatorService_AddStreamClient = grpc.BidiStreamingClient[AddRequest, AddResponse]
 
 // CalculatorServiceServer is the server API for CalculatorService service.
 // All implementations must embed UnimplementedCalculatorServiceServer
 // for forward compatibility.
 type CalculatorServiceServer interface {
-	Add(context.Context, *AddRequest) (*AddResponse, error)
+	// rpc Add(AddRequest) returns (AddResponse);  // Unary RPC
+	AddStream(grpc.BidiStreamingServer[AddRequest, AddResponse]) error
 	mustEmbedUnimplementedCalculatorServiceServer()
 }
 
@@ -62,8 +67,8 @@ type CalculatorServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCalculatorServiceServer struct{}
 
-func (UnimplementedCalculatorServiceServer) Add(context.Context, *AddRequest) (*AddResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Add not implemented")
+func (UnimplementedCalculatorServiceServer) AddStream(grpc.BidiStreamingServer[AddRequest, AddResponse]) error {
+	return status.Error(codes.Unimplemented, "method AddStream not implemented")
 }
 func (UnimplementedCalculatorServiceServer) mustEmbedUnimplementedCalculatorServiceServer() {}
 func (UnimplementedCalculatorServiceServer) testEmbeddedByValue()                           {}
@@ -86,23 +91,12 @@ func RegisterCalculatorServiceServer(s grpc.ServiceRegistrar, srv CalculatorServ
 	s.RegisterService(&CalculatorService_ServiceDesc, srv)
 }
 
-func _CalculatorService_Add_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CalculatorServiceServer).Add(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CalculatorService_Add_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CalculatorServiceServer).Add(ctx, req.(*AddRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+func _CalculatorService_AddStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(CalculatorServiceServer).AddStream(&grpc.GenericServerStream[AddRequest, AddResponse]{ServerStream: stream})
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CalculatorService_AddStreamServer = grpc.BidiStreamingServer[AddRequest, AddResponse]
 
 // CalculatorService_ServiceDesc is the grpc.ServiceDesc for CalculatorService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -110,12 +104,14 @@ func _CalculatorService_Add_Handler(srv interface{}, ctx context.Context, dec fu
 var CalculatorService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "sum.CalculatorService",
 	HandlerType: (*CalculatorServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "Add",
-			Handler:    _CalculatorService_Add_Handler,
+			StreamName:    "AddStream",
+			Handler:       _CalculatorService_AddStream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "proto/sum.proto",
 }

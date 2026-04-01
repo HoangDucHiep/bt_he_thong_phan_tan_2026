@@ -4,7 +4,8 @@ package sum;
 option go_package = "bai1/proto;proto";
 
 service CalculatorService {
-  rpc Add(AddRequest) returns (AddResponse);
+  // rpc Add(AddRequest) returns (AddResponse);  // Unary RPC
+  rpc AddStream(stream AddRequest) returns (stream AddResponse); // Bidirectional Streaming RPC
 }
 
 message AddRequest {

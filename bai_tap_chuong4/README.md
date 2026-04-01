@@ -10,9 +10,9 @@
 
 ## Baì 1:
 
-**_a. Client gửi yêu cầu tính tổng hai số nguyên đến Server. Server nhận yêu cầu, tính toán kết quả và trả về cho Client. Giao tiếp giữa Client và Server phải được thực hiện thông qua_**
+### _a. Client gửi yêu cầu tính tổng hai số nguyên đến Server. Server nhận yêu cầu, tính toán kết quả và trả về cho Client. Giao tiếp giữa Client và Server phải được thực hiện thông qua_
 ![Alt text](./bai1/cau1_a.png)
-**_b. So sánh gRPC với REST API_**
+### _b. So sánh gRPC với REST API_
 
 #### Bảng so sánh chi tiết
 
@@ -48,3 +48,9 @@
 - API công khai (public API) cần hỗ trợ browser/web client.
 - Cần compatibility rộng (mobile, third-party).
 - Ưu tiên readability và debugging dễ (JSON dễ đọc).
+
+### _c. Tối ưu hóa hiệu suất RPC_
+- Add Bidirectional Streaming:
+![Alt text](./bai1/cau1_c_1.png)
+
+### _d. Bảo mật trong gRPC_

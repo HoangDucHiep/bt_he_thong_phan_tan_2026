@@ -127,9 +127,9 @@ const file_proto_sum_proto_rawDesc = "" +
 	"\x01a\x18\x01 \x01(\x05R\x01a\x12\f\n" +
 	"\x01b\x18\x02 \x01(\x05R\x01b\"%\n" +
 	"\vAddResponse\x12\x16\n" +
-	"\x06result\x18\x01 \x01(\x05R\x06result2=\n" +
-	"\x11CalculatorService\x12(\n" +
-	"\x03Add\x12\x0f.sum.AddRequest\x1a\x10.sum.AddResponseB\x12Z\x10bai1/proto;protob\x06proto3"
+	"\x06result\x18\x01 \x01(\x05R\x06result2G\n" +
+	"\x11CalculatorService\x122\n" +
+	"\tAddStream\x12\x0f.sum.AddRequest\x1a\x10.sum.AddResponse(\x010\x01B\x12Z\x10bai1/proto;protob\x06proto3"
 
 var (
 	file_proto_sum_proto_rawDescOnce sync.Once
@@ -149,8 +149,8 @@ var file_proto_sum_proto_goTypes = []any{
 	(*AddResponse)(nil), // 1: sum.AddResponse
 }
 var file_proto_sum_proto_depIdxs = []int32{
-	0, // 0: sum.CalculatorService.Add:input_type -> sum.AddRequest
-	1, // 1: sum.CalculatorService.Add:output_type -> sum.AddResponse
+	0, // 0: sum.CalculatorService.AddStream:input_type -> sum.AddRequest
+	1, // 1: sum.CalculatorService.AddStream:output_type -> sum.AddResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
