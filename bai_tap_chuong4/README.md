@@ -161,3 +161,7 @@ conn, err := grpc.NewClient(
 ![](./bai2/cau2_a.png)
 ### b. 
 ![](./bai2/cau2_b.png)
+
+## Bài 3:
+### a.
+![](./bai3/cau3_a.png)
