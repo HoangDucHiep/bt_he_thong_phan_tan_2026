@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"math/rand"
 	"time"
@@ -16,6 +17,11 @@ type SensorData struct {
 }
 
 func main() {
+
+	// Get SensorID from command line
+	id := flag.Int("id", 1, "Sensor ID")
+	flag.Parse()
+
 	opts := mqtt.NewClientOptions().
 		AddBroker("tcp://broker.hivemq.com:1883").
 		SetClientID("sensor-1").
@@ -27,14 +33,14 @@ func main() {
 	}
 	defer client.Disconnect(250)
 
-	fmt.Println("Sensor is sending temperature data every second...")
+	fmt.Printf("Sensor %d is sending temperature data every second...\n", *id)
 
 	ticker := time.NewTicker(1 * time.Second)
 	defer ticker.Stop()
 
 	for range ticker.C {
 		data := SensorData{
-			SensorID:  1,
+			SensorID:  *id,
 			Temp:      25.0 + rand.Float64()*10, // 25.0 ~ 35.0
 			Timestamp: time.Now().Format(time.RFC3339),
 		}

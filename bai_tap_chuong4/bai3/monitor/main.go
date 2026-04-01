@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -14,9 +15,12 @@ type SensorData struct {
 }
 
 func main() {
+	id := flag.Int("id", 1, "Monitor ID")
+	flag.Parse()
+
 	opts := mqtt.NewClientOptions().
 		AddBroker("tcp://broker.hivemq.com:1883").
-		SetClientID("monitor-1").
+		SetClientID(fmt.Sprintf("monitor-%d", *id)).
 		SetCleanSession(true)
 
 	client := mqtt.NewClient(opts)
@@ -29,12 +33,19 @@ func main() {
 	if token := client.Subscribe(topic, 1, func(client mqtt.Client, msg mqtt.Message) {
 		var data SensorData
 		json.Unmarshal(msg.Payload(), &data)
-		fmt.Printf("[Monitor] Nhận được: Sensor %d | Nhiệt độ: %.1f°C | Time: %s\n",
-			data.SensorID, data.Temp, data.Timestamp)
+		fmt.Printf("[Monitor %d] Received: Sensor %d | Temperature: %.1f°C | Time: %s\n",
+			*id, data.SensorID, data.Temp, data.Timestamp)
+
+		// warn if temperature exceeds threshold
+		const threshold = 32.0
+		if data.Temp > threshold {
+			fmt.Printf("[Monitor %d] WARNING: Sensor %d temperature %.1f°C exceeds threshold!\n",
+				*id, data.SensorID, data.Temp)
+		}
 	}); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
 
-	fmt.Println("Monitor đang lắng nghe topic sensors/temperature...")
+	fmt.Printf("Monitor %d is listening on topic sensors/temperature...\n", *id)
 	select {} // giữ chương trình chạy
 }
