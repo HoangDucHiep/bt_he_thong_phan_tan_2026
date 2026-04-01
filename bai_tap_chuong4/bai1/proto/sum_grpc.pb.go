@@ -20,6 +20,9 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	CalculatorService_AddStream_FullMethodName = "/sum.CalculatorService/AddStream"
+	CalculatorService_SubStream_FullMethodName = "/sum.CalculatorService/SubStream"
+	CalculatorService_MulStream_FullMethodName = "/sum.CalculatorService/MulStream"
+	CalculatorService_DivStream_FullMethodName = "/sum.CalculatorService/DivStream"
 )
 
 // CalculatorServiceClient is the client API for CalculatorService service.
@@ -27,7 +30,10 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CalculatorServiceClient interface {
 	// rpc Add(AddRequest) returns (AddResponse);  // Unary RPC
-	AddStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[AddRequest, AddResponse], error)
+	AddStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Request, Response], error)
+	SubStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Request, Response], error)
+	MulStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Request, Response], error)
+	DivStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Request, Response], error)
 }
 
 type calculatorServiceClient struct {
@@ -38,25 +44,67 @@ func NewCalculatorServiceClient(cc grpc.ClientConnInterface) CalculatorServiceCl
 	return &calculatorServiceClient{cc}
 }
 
-func (c *calculatorServiceClient) AddStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[AddRequest, AddResponse], error) {
+func (c *calculatorServiceClient) AddStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Request, Response], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &CalculatorService_ServiceDesc.Streams[0], CalculatorService_AddStream_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[AddRequest, AddResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[Request, Response]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type CalculatorService_AddStreamClient = grpc.BidiStreamingClient[AddRequest, AddResponse]
+type CalculatorService_AddStreamClient = grpc.BidiStreamingClient[Request, Response]
+
+func (c *calculatorServiceClient) SubStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Request, Response], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &CalculatorService_ServiceDesc.Streams[1], CalculatorService_SubStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[Request, Response]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CalculatorService_SubStreamClient = grpc.BidiStreamingClient[Request, Response]
+
+func (c *calculatorServiceClient) MulStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Request, Response], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &CalculatorService_ServiceDesc.Streams[2], CalculatorService_MulStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[Request, Response]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CalculatorService_MulStreamClient = grpc.BidiStreamingClient[Request, Response]
+
+func (c *calculatorServiceClient) DivStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[Request, Response], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &CalculatorService_ServiceDesc.Streams[3], CalculatorService_DivStream_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[Request, Response]{ClientStream: stream}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CalculatorService_DivStreamClient = grpc.BidiStreamingClient[Request, Response]
 
 // CalculatorServiceServer is the server API for CalculatorService service.
 // All implementations must embed UnimplementedCalculatorServiceServer
 // for forward compatibility.
 type CalculatorServiceServer interface {
 	// rpc Add(AddRequest) returns (AddResponse);  // Unary RPC
-	AddStream(grpc.BidiStreamingServer[AddRequest, AddResponse]) error
+	AddStream(grpc.BidiStreamingServer[Request, Response]) error
+	SubStream(grpc.BidiStreamingServer[Request, Response]) error
+	MulStream(grpc.BidiStreamingServer[Request, Response]) error
+	DivStream(grpc.BidiStreamingServer[Request, Response]) error
 	mustEmbedUnimplementedCalculatorServiceServer()
 }
 
@@ -67,8 +115,17 @@ type CalculatorServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCalculatorServiceServer struct{}
 
-func (UnimplementedCalculatorServiceServer) AddStream(grpc.BidiStreamingServer[AddRequest, AddResponse]) error {
+func (UnimplementedCalculatorServiceServer) AddStream(grpc.BidiStreamingServer[Request, Response]) error {
 	return status.Error(codes.Unimplemented, "method AddStream not implemented")
+}
+func (UnimplementedCalculatorServiceServer) SubStream(grpc.BidiStreamingServer[Request, Response]) error {
+	return status.Error(codes.Unimplemented, "method SubStream not implemented")
+}
+func (UnimplementedCalculatorServiceServer) MulStream(grpc.BidiStreamingServer[Request, Response]) error {
+	return status.Error(codes.Unimplemented, "method MulStream not implemented")
+}
+func (UnimplementedCalculatorServiceServer) DivStream(grpc.BidiStreamingServer[Request, Response]) error {
+	return status.Error(codes.Unimplemented, "method DivStream not implemented")
 }
 func (UnimplementedCalculatorServiceServer) mustEmbedUnimplementedCalculatorServiceServer() {}
 func (UnimplementedCalculatorServiceServer) testEmbeddedByValue()                           {}
@@ -92,11 +149,32 @@ func RegisterCalculatorServiceServer(s grpc.ServiceRegistrar, srv CalculatorServ
 }
 
 func _CalculatorService_AddStream_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(CalculatorServiceServer).AddStream(&grpc.GenericServerStream[AddRequest, AddResponse]{ServerStream: stream})
+	return srv.(CalculatorServiceServer).AddStream(&grpc.GenericServerStream[Request, Response]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type CalculatorService_AddStreamServer = grpc.BidiStreamingServer[AddRequest, AddResponse]
+type CalculatorService_AddStreamServer = grpc.BidiStreamingServer[Request, Response]
+
+func _CalculatorService_SubStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(CalculatorServiceServer).SubStream(&grpc.GenericServerStream[Request, Response]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CalculatorService_SubStreamServer = grpc.BidiStreamingServer[Request, Response]
+
+func _CalculatorService_MulStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(CalculatorServiceServer).MulStream(&grpc.GenericServerStream[Request, Response]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CalculatorService_MulStreamServer = grpc.BidiStreamingServer[Request, Response]
+
+func _CalculatorService_DivStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(CalculatorServiceServer).DivStream(&grpc.GenericServerStream[Request, Response]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type CalculatorService_DivStreamServer = grpc.BidiStreamingServer[Request, Response]
 
 // CalculatorService_ServiceDesc is the grpc.ServiceDesc for CalculatorService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -109,6 +187,24 @@ var CalculatorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "AddStream",
 			Handler:       _CalculatorService_AddStream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "SubStream",
+			Handler:       _CalculatorService_SubStream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "MulStream",
+			Handler:       _CalculatorService_MulStream_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "DivStream",
+			Handler:       _CalculatorService_DivStream_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},

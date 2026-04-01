@@ -54,3 +54,105 @@
 ![Alt text](./bai1/cau1_c_1.png)
 
 ### _d. Bảo mật trong gRPC_
+![Alt text](./bai1/cau1_d.png)
+Bật TLS:
+
+- Server: `credentials.NewServerTLSFromFile("server.crt", "server.key")`
+- Client: `credentials.NewClientTLSFromFile("ca.crt", "localhost")`
+
+Authentication:
+
+- Client gửi API key qua metadata: `metadata.Pairs("x-api-key", "...")`
+- Server dùng stream interceptor `(grpc.StreamInterceptor)` kiểm tra key trước khi cho phép RPC chạy
+- Sai/thiếu key → trả `codes.Unauthenticated`
+
+### _e. Xử lý lỗi trong gRPC_
+![Alt text](./bai1/cau1_e.png)
+
+**Xử lý lỗi trong gRPC:**
+
+1. **Phân loại lỗi theo status code** (`codes.DeadlineExceeded`, `Unauthenticated`, `Unavailable`, `Internal`, etc.)
+2. **Client nên**:
+   - Kiểm tra `status.FromError(err)` để lấy chi tiết lỗi
+   - Xử lý từng loại lỗi riêng (retry cho `Unavailable`, báo user cho `Unauthenticated`, log cho `Internal`)
+   - Không dùng `log.Fatalf` trực tiếp → graceful degradation
+
+**Deadline/Timeout:**
+
+- Dùng `context.WithTimeout(ctx, duration)` để đảm bảo client không chờ vô hạn
+- Server tự động hủy xử lý khi context deadline vượt quá
+- Best practice: set timeout hợp lý (3-5s cho unary, 30s-1m cho stream dài)
+
+**Retry logic** (nâng cao):
+- Dùng `grpc.WithDefaultCallOptions(grpc.WaitForReady(true))` để tự động retry khi server unavailable
+- Hoặc tự implement exponential backoff cho các lỗi tạm thời
+
+### _f. Triển khai Server gRPC trên Kubernetes_
+
+#### Các bước triển khai Server gRPC trên Kubernetes:
+
+1. **Đóng gói ứng dụng**:
+   - Tạo `Dockerfile` để build image chứa server gRPC
+   - Push image lên container registry (Docker Hub, GCR, ECR...)
+
+2. **Tạo Kubernetes Deployment**:
+   - Định nghĩa số replica (ví dụ 3 pods) để đảm bảo high availability
+   - Mount TLS certificates qua ConfigMap hoặc Secret
+   - Cấu hình resource limits (CPU, memory)
+   - Thêm health checks (liveness/readiness probe) bằng `grpc_health_probe`
+
+3. **Tạo Kubernetes Service**:
+   - Expose Deployment qua Service (ClusterIP cho internal, LoadBalancer cho external)
+   - Cấu hình port 50052 cho gRPC
+
+4. **Quản lý cấu hình**:
+   - Dùng ConfigMap cho cấu hình không nhạy cảm
+   - Dùng Secret cho TLS certs và API keys
+   - Dùng Environment variables để inject config vào pods
+
+#### Load Balancing cho gRPC trên Kubernetes:
+
+**Vấn đề đặc biệt:**
+- gRPC sử dụng **HTTP/2** với **long-lived connections** (persistent stream)
+- Kubernetes Service mặc định load balance ở **Layer 4 (TCP)** → chỉ balance khi mở connection mới
+- Kết quả: tất cả request trên cùng 1 stream đều đi vào 1 pod → **không cân bằng tải hiệu quả**
+
+**Các giải pháp:**
+
+| Giải pháp | Cách hoạt động | Ưu điểm | Nhược điểm | Khi nào dùng |
+|-----------|---------------|---------|------------|--------------|
+| **Client-side Load Balancing** | Client dùng Headless Service để resolve tất cả pod IPs, tự balance theo `round_robin` | Đơn giản, hiệu suất cao, không cần thêm infrastructure | Client phải hỗ trợ (gRPC built-in), phức tạp hơn cho client | Internal microservices, client có thể control code |
+| **Service Mesh (Istio/Linkerd)** | Inject sidecar proxy vào mỗi pod, proxy xử lý L7 load balancing tự động | Tự động, hỗ trợ mTLS/retry/observability, không cần sửa code | Overhead cao (thêm proxy), phức tạp setup | Production với nhiều services, cần observability |
+| **Envoy Proxy** | Deploy Envoy như standalone proxy giữa client và server | L7 load balancing mạnh, config linh hoạt | Thêm 1 hop network, cần maintain thêm component | Khi không muốn dùng full service mesh |
+| **External Load Balancer** | Dùng cloud LB hỗ trợ gRPC (GCP LB, AWS ALB) | Managed service, dễ setup | Chỉ cho external traffic, phụ thuộc cloud provider | Expose gRPC ra internet |
+
+**Khuyến nghị:**
+- **Internal microservices**: Client-side LB (Headless Service + `dns:///` resolver)
+- **Production phức tạp**: Service Mesh (Istio) để có đầy đủ tính năng security + observability
+- **Đơn giản nhất**: Chấp nhận L4 load balancing + thiết kế client reconnect định kỳ
+
+**Ví dụ Headless Service cho client-side LB:**
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-calculator-headless
+spec:
+  clusterIP: None  # Headless - trả về tất cả pod IPs
+  selector:
+    app: grpc-calculator
+  ports:
+  - port: 50052
+```
+
+Client code:
+```go
+conn, err := grpc.NewClient(
+    "dns:///grpc-calculator-headless.default.svc.cluster.local:50052",
+    grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy":"round_robin"}`),
+)
+```
+
+### _g. Bổ sung phương thức Multiply, Subtract, Divide để mở rộng tính năng tính toán._
+![Alt text](./bai1/cau1_g.png)
+

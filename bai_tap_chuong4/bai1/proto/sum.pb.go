@@ -21,7 +21,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type AddRequest struct {
+type Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	A             int32                  `protobuf:"varint,1,opt,name=a,proto3" json:"a,omitempty"`
 	B             int32                  `protobuf:"varint,2,opt,name=b,proto3" json:"b,omitempty"`
@@ -29,20 +29,20 @@ type AddRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AddRequest) Reset() {
-	*x = AddRequest{}
+func (x *Request) Reset() {
+	*x = Request{}
 	mi := &file_proto_sum_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AddRequest) String() string {
+func (x *Request) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AddRequest) ProtoMessage() {}
+func (*Request) ProtoMessage() {}
 
-func (x *AddRequest) ProtoReflect() protoreflect.Message {
+func (x *Request) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_sum_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -54,46 +54,46 @@ func (x *AddRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AddRequest.ProtoReflect.Descriptor instead.
-func (*AddRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use Request.ProtoReflect.Descriptor instead.
+func (*Request) Descriptor() ([]byte, []int) {
 	return file_proto_sum_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *AddRequest) GetA() int32 {
+func (x *Request) GetA() int32 {
 	if x != nil {
 		return x.A
 	}
 	return 0
 }
 
-func (x *AddRequest) GetB() int32 {
+func (x *Request) GetB() int32 {
 	if x != nil {
 		return x.B
 	}
 	return 0
 }
 
-type AddResponse struct {
+type Response struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Result        int32                  `protobuf:"varint,1,opt,name=result,proto3" json:"result,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AddResponse) Reset() {
-	*x = AddResponse{}
+func (x *Response) Reset() {
+	*x = Response{}
 	mi := &file_proto_sum_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AddResponse) String() string {
+func (x *Response) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AddResponse) ProtoMessage() {}
+func (*Response) ProtoMessage() {}
 
-func (x *AddResponse) ProtoReflect() protoreflect.Message {
+func (x *Response) ProtoReflect() protoreflect.Message {
 	mi := &file_proto_sum_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -105,12 +105,12 @@ func (x *AddResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AddResponse.ProtoReflect.Descriptor instead.
-func (*AddResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use Response.ProtoReflect.Descriptor instead.
+func (*Response) Descriptor() ([]byte, []int) {
 	return file_proto_sum_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *AddResponse) GetResult() int32 {
+func (x *Response) GetResult() int32 {
 	if x != nil {
 		return x.Result
 	}
@@ -121,15 +121,17 @@ var File_proto_sum_proto protoreflect.FileDescriptor
 
 const file_proto_sum_proto_rawDesc = "" +
 	"\n" +
-	"\x0fproto/sum.proto\x12\x03sum\"(\n" +
-	"\n" +
-	"AddRequest\x12\f\n" +
+	"\x0fproto/sum.proto\x12\x03sum\"%\n" +
+	"\aRequest\x12\f\n" +
 	"\x01a\x18\x01 \x01(\x05R\x01a\x12\f\n" +
-	"\x01b\x18\x02 \x01(\x05R\x01b\"%\n" +
-	"\vAddResponse\x12\x16\n" +
-	"\x06result\x18\x01 \x01(\x05R\x06result2G\n" +
-	"\x11CalculatorService\x122\n" +
-	"\tAddStream\x12\x0f.sum.AddRequest\x1a\x10.sum.AddResponse(\x010\x01B\x12Z\x10bai1/proto;protob\x06proto3"
+	"\x01b\x18\x02 \x01(\x05R\x01b\"\"\n" +
+	"\bResponse\x12\x16\n" +
+	"\x06result\x18\x01 \x01(\x05R\x06result2\xcb\x01\n" +
+	"\x11CalculatorService\x12,\n" +
+	"\tAddStream\x12\f.sum.Request\x1a\r.sum.Response(\x010\x01\x12,\n" +
+	"\tSubStream\x12\f.sum.Request\x1a\r.sum.Response(\x010\x01\x12,\n" +
+	"\tMulStream\x12\f.sum.Request\x1a\r.sum.Response(\x010\x01\x12,\n" +
+	"\tDivStream\x12\f.sum.Request\x1a\r.sum.Response(\x010\x01B\x12Z\x10bai1/proto;protob\x06proto3"
 
 var (
 	file_proto_sum_proto_rawDescOnce sync.Once
@@ -145,14 +147,20 @@ func file_proto_sum_proto_rawDescGZIP() []byte {
 
 var file_proto_sum_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_proto_sum_proto_goTypes = []any{
-	(*AddRequest)(nil),  // 0: sum.AddRequest
-	(*AddResponse)(nil), // 1: sum.AddResponse
+	(*Request)(nil),  // 0: sum.Request
+	(*Response)(nil), // 1: sum.Response
 }
 var file_proto_sum_proto_depIdxs = []int32{
-	0, // 0: sum.CalculatorService.AddStream:input_type -> sum.AddRequest
-	1, // 1: sum.CalculatorService.AddStream:output_type -> sum.AddResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	0, // 0: sum.CalculatorService.AddStream:input_type -> sum.Request
+	0, // 1: sum.CalculatorService.SubStream:input_type -> sum.Request
+	0, // 2: sum.CalculatorService.MulStream:input_type -> sum.Request
+	0, // 3: sum.CalculatorService.DivStream:input_type -> sum.Request
+	1, // 4: sum.CalculatorService.AddStream:output_type -> sum.Response
+	1, // 5: sum.CalculatorService.SubStream:output_type -> sum.Response
+	1, // 6: sum.CalculatorService.MulStream:output_type -> sum.Response
+	1, // 7: sum.CalculatorService.DivStream:output_type -> sum.Response
+	4, // [4:8] is the sub-list for method output_type
+	0, // [0:4] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name

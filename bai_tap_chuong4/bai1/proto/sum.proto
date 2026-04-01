@@ -5,14 +5,17 @@ option go_package = "bai1/proto;proto";
 
 service CalculatorService {
   // rpc Add(AddRequest) returns (AddResponse);  // Unary RPC
-  rpc AddStream(stream AddRequest) returns (stream AddResponse); // Bidirectional Streaming RPC
+  rpc AddStream(stream Request) returns (stream Response); // Bidirectional Streaming RPC
+  rpc SubStream(stream Request) returns (stream Response); // Bidirectional Streaming RPC
+  rpc MulStream(stream Request) returns (stream Response); // Bidirectional Streaming RPC
+  rpc DivStream(stream Request) returns (stream Response); // Bidirectional Streaming RPC
 }
 
-message AddRequest {
+message Request {
   int32 a = 1;
   int32 b = 2;
 }
 
-message AddResponse {
+message Response {
   int32 result = 1;
 }
