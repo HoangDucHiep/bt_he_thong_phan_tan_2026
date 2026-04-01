@@ -4,10 +4,76 @@
 
 | Mô hình                           | Đặc điểm chính                                                                                              | Ưu điểm                                                                                               | Nhược điểm                                                                                                           | Tình huống nên sử dụng                                                                     |
 | --------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| **Remote Procedure Call (RPC)**   | Gọi thủ tục từ xa như gọi cục bộ (stub/skeleton, parameter marshalling). Thường synchronous.                | Dễ lập trình, che giấu sự phân tán, trừu tượng cao (gần giống gọi hàm local).                         | Synchronous dễ gây deadlock, overhead marshalling lớn, khó xử lý failure, không phù hợp với giao tiếp không đồng bộ. | Microservices cần gọi hàm đồng bộ, tính toán ngắn, truy vấn database.                      |
-| **Message Passing**               | Gửi/nhận tin nhắn (send/receive). Có transient (socket) và persistent (message queue). Hỗ trợ asynchronous. | Decoupling mạnh (sender và receiver không cần biết nhau), scalable, hỗ trợ asynchronous & persistent. | Phức tạp hơn (phải tự xử lý ordering, reliability, duplicate), abstraction thấp hơn RPC.                             | Hệ thống cần loose coupling, task queue, logging, xử lý sự kiện dài hạn (RabbitMQ, Kafka). |
-| **Stream-Oriented Communication** | Truyền dữ liệu liên tục (continuous data flow) với yêu cầu về timing (thường dùng UDP/TCP cho multimedia).  | Hiệu suất cao cho dữ liệu lớn & real-time, hỗ trợ streaming (Server/Client/Bidirectional).            | Không đảm bảo reliability nếu dùng UDP, rất nhạy cảm với delay, jitter, packet loss, khó xử lý ordering.             | Truyền dữ liệu real-time: video call, sensor stream, audio/video broadcasting.             |
+| Remote Procedure Call (RPC)   | Gọi thủ tục từ xa như gọi cục bộ (stub/skeleton, parameter marshalling). Thường synchronous.                | Dễ lập trình, che giấu sự phân tán, trừu tượng cao (gần giống gọi hàm local).                         | Synchronous dễ gây deadlock, overhead marshalling lớn, khó xử lý failure, không phù hợp với giao tiếp không đồng bộ. | Microservices cần gọi hàm đồng bộ, tính toán ngắn, truy vấn database.                      |
+| Message Passing               | Gửi/nhận tin nhắn (send/receive). Có transient (socket) và persistent (message queue). Hỗ trợ asynchronous. | Decoupling mạnh (sender và receiver không cần biết nhau), scalable, hỗ trợ asynchronous & persistent. | Phức tạp hơn (phải tự xử lý ordering, reliability, duplicate), abstraction thấp hơn RPC.                             | Hệ thống cần loose coupling, task queue, logging, xử lý sự kiện dài hạn (RabbitMQ, Kafka). |
+| Stream-Oriented Communication | Truyền dữ liệu liên tục (continuous data flow) với yêu cầu về timing (thường dùng UDP/TCP cho multimedia).  | Hiệu suất cao cho dữ liệu lớn & real-time, hỗ trợ streaming (Server/Client/Bidirectional).            | Không đảm bảo reliability nếu dùng UDP, rất nhạy cảm với delay, jitter, packet loss, khó xử lý ordering.             | Truyền dữ liệu real-time: video call, sensor stream, audio/video broadcasting.             |
 
+## Bai 2: Giải thích cơ chế giao tiếp không đồng bộ
+
+- Synchronous communication: Sender phải blocking (chờ đợi) cho đến khi receiver nhận và xử lý xong message.  
+- Asynchronous communication: Sender gửi xong thì tiếp tục ngay (non-blocking). Receiver xử lý sau (qua queue, callback hoặc polling).
+
+### So sánh giữa synchronous và asynchronous communication
+
+| Tiêu chí              | Synchronous Communication                          | Asynchronous Communication                          |
+|-----------------------|----------------------------------------------------|-----------------------------------------------------|
+| Hành vi của Sender    | Blocking (chờ đợi)                                 | Non-blocking (tiếp tục ngay)                        |
+| Độ tin cậy            | Cao, thứ tự rõ ràng                                | Thấp hơn, cần thêm ACK/retry                        |
+| Hiệu suất             | Thấp (dễ gây bottleneck)                           | Cao, scalable                                       |
+| Phức tạp lập trình    | Dễ (gần giống gọi hàm local)                       | Phức tạp hơn (xử lý callback, queue)                |
+| Ví dụ trong sách      | RPC unary call (Chương 4.2)                        | Message queue, socket non-blocking (Chương 4.3)     |
+
+### Ví dụ về tình huống thực tế khi nên dùng giao tiếp không đồng bộ
+
+- Hệ thống chat / notification (gửi tin nhắn không cần chờ phản hồi ngay).  
+- Xử lý batch job dài (upload file lớn, gửi email hàng loạt, xử lý log).  
+- Hệ thống giám sát cảm biến IoT (sensor publish dữ liệu mỗi giây, monitor nhận sau – không thể để sensor chờ).  
+- Microservices có latency cao (tránh blocking toàn bộ hệ thống khi gọi service khác).  
+
+Asynchronous giúp tăng scalability và fault tolerance.
+
+## Bai 3: Giao tiếp dựa trên publish-subscribe
+
+### Trình bày mô hình publish-subscribe trong hệ phân tán
+
+- Đây là mô hình many-to-many.  
+- Publisher gửi message đến một topic/channel mà không biết ai sẽ nhận.  
+- Subscriber đăng ký (subscribe) topic quan tâm.  
+- Broker (hoặc distributed overlay) làm trung gian: nhận message từ publisher, thực hiện matching và forward đến tất cả subscriber phù hợp.  
+- Không có địa chỉ trực tiếp giữa publisher và subscriber → loose coupling rất mạnh.  
+- Hỗ trợ topic-based (dựa trên tên topic) hoặc content-based (dựa trên nội dung message).  
+- Ví dụ thực tế: MQTT, Kafka, ZeroMQ pub-sub (được đề cập trong sách).
+
+### Phân tích ưu/nhược điểm so với message queue
+
+| Tiêu chí                  | Publish-Subscribe                                   | Message Queue                                      | Kết luận (pub-sub so với message queue) |
+|---------------------------|-----------------------------------------------------|----------------------------------------------------|-----------------------------------------|
+| Coupling                  | Rất thấp (publisher không biết subscriber)          | Thấp hơn (producer biết queue)                     | Ưu điểm mạnh của pub-sub                |
+| Scalability               | Cao (dễ thêm subscriber)                            | Cao (worker queue dễ scale)                        | Pub-sub tốt cho broadcast               |
+| Delivery model            | Many-to-many (broadcast)                            | Point-to-point hoặc worker                         | Pub-sub vượt trội cho event             |
+| Ordering & Reliability    | Khó đảm bảo exactly-once và ordering                | Dễ (ACK + persistent queue)                        | Nhược điểm của pub-sub                  |
+| Use case                  | Event-driven, real-time notification, monitoring    | Task distribution (worker pattern)                 | Pub-sub phù hợp IoT / sensor system     |
+
+## Bai 4: Các vấn đề khi truyền tin trên mạng
+
+### Tại sao việc packet loss, delay, jitter, out-of-order delivery lại ảnh hưởng đến hệ thống phân tán?
+
+- Packet loss: Mất message → gây inconsistency giữa các node (ví dụ: RPC thất bại, state không đồng bộ).  
+- Delay / Jitter: Vi phạm yêu cầu thời gian thực (đặc biệt Stream-Oriented) → QoS giảm, false timeout.  
+- Out-of-order delivery: Sai thứ tự logic (transaction, event processing) → kết quả sai hoặc deadlock.  
+- Tổng thể: Phá vỡ distribution transparency, làm hệ thống kém dependable và scalable.
+
+### Đề xuất cách khắc phục
+
+- Sử dụng reliable protocol: TCP thay vì UDP khi cần reliability (đảm bảo ordering + retransmission).  
+- Timeout & retry + ACK/NACK (RPC semantics: at-least-once, at-most-once, exactly-once).  
+- Buffering + sequencing để xử lý jitter và out-of-order (stream-oriented).  
+- Message logging + checkpointing để recover sau loss.  
+- Gossip-based hoặc multicast tree để tăng resilience.  
+- Compression và deadline (trong gRPC) để giảm delay.
+
+
+# II. Bài tập
 ## Baì 1:
 
 ### _a. Client gửi yêu cầu tính tổng hai số nguyên đến Server. Server nhận yêu cầu, tính toán kết quả và trả về cho Client. Giao tiếp giữa Client và Server phải được thực hiện thông qua_
