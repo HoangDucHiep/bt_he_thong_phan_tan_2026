@@ -84,15 +84,15 @@ a.
 ![alt text](./cau1/image.png)
 ![alt text](./cau1/image-1.png)
 ![alt text](./cau1/image-2.png)
+
 b. 
 - Fail:
 ![alt text](./cau1/image-3.png)
 - Recover:
-	![alt text](./cau1/image-4.png)
+![alt text](./cau1/image-4.png)
 
 c.   
-	![alt text](./cau1/image-5.png)
+![alt text](./cau1/image-5.png)
 d. Thời gian truy vấn: (ĐÃ có ở từng ảnh)
 
-
-## Bài tập 2:  
+## Bài tập 2:
