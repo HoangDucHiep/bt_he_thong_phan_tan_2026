@@ -96,3 +96,49 @@ c.
 d. Thời gian truy vấn: (ĐÃ có ở từng ảnh)
 
 ## Bài tập 2:
+a. 
+- Cache hit
+![alt text](image.png)
+- TTL
+![alt text](image-1.png)
+
+b. LRU eviction
+```
+// test commands (copy paste all)
+batch www.example.com mail.example.com shop.example.com api.example.com news.example.com
+cache
+resolve ftp.example.com
+cache
+stats
+```
+![alt text](image-2.png)
+![alt text](image-3.png)
+
+- Ở lần cache thứ nhất: cache đầy 5/5, www.example.com đang ở vị trí LRU.
+- Ở lệnh resolve ftp.example.com: LRU eviction: 'www.example.com' removed to make room.
+- Ở lần cache thứ hai: ftp.example.com đã vào vị trí MRU, và eviction tăng lên 1.
+- Ở lệnh stats cuối cùng: bảng thống kê có số lượng LRU Eviction.
+
+c. 
+```
+batch www.viettel.vn mail.viettel.vn shop.viettel.vn
+cache
+cache flush mail.viettel.vn
+cache
+cache flush
+cache
+```
+![alt text](image-4.png)
+![alt text](image-5.png)
+
+- Lệnh `cache flush <domain>` xóa duy nhất một bản ghi cụ thể.
+- Lệnh `cache flush` xóa toàn bộ cache. Bảng in ra sẽ hiển thị `Cache is empty.`
+
+d. 
+![alt text](image-6.png)
+![alt text](image-7.png)
+- Lệnh `stats` hiển thị rõ số lần Cache HIT, Cache MISS, và tính toán tỷ lệ Hit Rate.
+- Số Server queries bằng số Cache MISS, chứng tỏ các lần Cache HIT không hề tốn tài nguyên truy vấn ra máy chủ thật.
+
+e. Menu
+![alt text](image-8.png)
