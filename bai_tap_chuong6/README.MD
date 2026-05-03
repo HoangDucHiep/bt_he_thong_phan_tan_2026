@@ -232,3 +232,31 @@ e. Thiết lập độ trễ (latency) và time-out
 
 
 ![alt text](./cau3/image-12.png)
+
+## Bài tập 4
+
+a. Cấu trúc hệ thống phân tán và quá trình nhảy Hop
+
+- status/list data isolation
+
+![alt text](./cau4/image.png)
+
+![alt text](./cau4/image-1.png)	
+
+-luồng phân giải Hop-by-Hop từ root -> TLD -> SLD
+
+![alt text](./cau4/image-2.png)
+
+b. Bổ sung caching tại từng máy chủ
+- resolve lần 2 có Cache Hit
+
+![alt text](./cau4/image-3.png)
+
+- `cache show` chứng minh mỗi server có 1 bộ cache LRU độc lập
+
+![alt text](./cau4/image-4.png)
+
+c. Thêm chức năng timeout và chọn máy chủ thay thế (Replica)
+- `ns-com` bị down và hệ thống tự fallback sang `ns-com-replica`
+
+![alt text](./cau4/image-5.png)
