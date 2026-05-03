@@ -83,18 +83,24 @@ Một hệ thống naming tốt trong môi trường phân tán cần đáp ứn
 ## Bài tập 1: Mô phỏng hệ thống phân giải tên DNS phân cấp
 
 a.
+
 ![alt text](./cau1/image.png)
+
 ![alt text](./cau1/image-1.png)
+
 ![alt text](./cau1/image-2.png)
 
 b.
 
 - Fail:
+  
   ![alt text](./cau1/image-3.png)
 - Recover:
+  
   ![alt text](./cau1/image-4.png)
 
 c.  
+
 ![alt text](./cau1/image-5.png)
 d. Thời gian truy vấn: (ĐÃ có ở từng ảnh)
 
@@ -103,8 +109,10 @@ d. Thời gian truy vấn: (ĐÃ có ở từng ảnh)
 a.
 
 - Cache hit
+  
   ![alt text](./cau2/image.png)
 - TTL
+  
   ![alt text](./cau2/image-1.png)
 
 b. LRU eviction
@@ -118,7 +126,9 @@ cache
 stats
 ```
 
+
 ![alt text](./cau2/image-2.png)
+
 ![alt text](./cau2/image-3.png)
 
 - Ở lần cache thứ nhất: cache đầy 5/5, www.example.com đang ở vị trí LRU.
@@ -137,18 +147,88 @@ cache flush
 cache
 ```
 
+
 ![alt text](./cau2/image-4.png)
+
 ![alt text](./cau2/image-5.png)
 
 - Lệnh `cache flush <domain>` xóa duy nhất một bản ghi cụ thể.
 - Lệnh `cache flush` xóa toàn bộ cache. Bảng in ra sẽ hiển thị `Cache is empty.`
 
 d.
+
 ![alt text](./cau2/image-6.png)
+
 ![alt text](./cau2/image-7.png)
 
 - Lệnh `stats` hiển thị rõ số lần Cache HIT, Cache MISS, và tính toán tỷ lệ Hit Rate.
 - Số Server queries bằng số Cache MISS, chứng tỏ các lần Cache HIT không hề tốn tài nguyên truy vấn ra máy chủ thật.
 
 e. Menu
+
 ![alt text](./cau2/image-8.png)
+
+## Bài tập 3:
+a. 
+- Cấu hình hệ thống 2 máy chủ dns_primary (PRIMARY), dns_secondary (SECONDARY), dns_backup_1, dns_backup_2 với fail rate, timeout, latency.
+
+![alt text](./cau3/image.png)
+- Phân giải thành công qua Primary
+
+![alt text](./cau3/image-1.png)
+- Primary bị lỗi ngẫu nhiên (lệnh set là 100%) → tự fallback sang Secondary
+
+![alt text](./cau3/image-2.png)
+- Primary bị tắt thủ công → fallback + log lỗi rõ ràng
+
+![alt text](./cau3/image-3.png)
+- Cả primary lẫn secondary đều chết → fallback sang backup
+
+![alt text](./cau3/image-4.png)
+
+b.
+- Thêm 2 backup
+
+![alt text](./cau3/image-5.png)
+- Kill tất cả server trên để force backup_3 xử lý
+
+![alt text](./cau3/image-6.png)
+- Khôi phục, xóa 1 server rồi xem lại chain
+
+![alt text](./cau3/image-7.png)
+
+c. Thống kê tỷ lệ lỗi máy chủ chính và số lần fallback
+```
+// setup
+server dns_primary failrate 0
+batch www.example.com mail.myorg.org
+server dns_primary failrate 100
+batch www.example.com mail.myorg.org
+server dns_primary failrate 0
+server dns_primary down
+resolve api.techcorp.net
+server dns_primary up
+
+// thống kê
+stats
+```
+
+![alt text](./cau3/image-8.png)
+
+d. Bật/tắt máy chủ chính để mô phỏng lỗi
+- Tắt máy chủ chính và kiểm tra trạng thái
+
+![alt text](./cau3/image-9.png)
+- Thử phân giải khi máy chủ tắt
+
+![alt text](./cau3/image-10.png)
+
+e. Thiết lập độ trễ (latency) và time-out
+- Chỉnh timeout rất thấp để ép lỗi
+
+
+![alt text](./cau3/image-11.png)
+- Chỉnh lại timeout và test độ trễ mô phỏng (Latency)
+
+
+![alt text](./cau3/image-12.png)
